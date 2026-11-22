@@ -1,0 +1,16 @@
+package fdms.model;
+
+public class User {
+
+    public final String username;
+    public final String password;
+    public final String name;
+    public final Role role;
+
+    public User(String username, String password, String name, Role role) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.role = role;
+    }
+}
