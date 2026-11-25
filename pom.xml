@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>fdms</groupId>
-    <artifactId>fdms-api</artifactId>
+    <artifactId>fdms-backend</artifactId>
     <version>1.0.0</version>
 
     <properties>
