@@ -1,16 +1,28 @@
 package fdms.model;
 
-public class User {
+public abstract class User {
 
-    public final String username;
-    public final String password;
-    public final String name;
-    public final Role role;
+    private final String username;
+    private final String password;
+    private final String name;
 
-    public User(String username, String password, String name, Role role) {
+    protected User(String username, String password, String name) {
         this.username = username;
         this.password = password;
         this.name = name;
-        this.role = role;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public abstract Role getRole();
 }

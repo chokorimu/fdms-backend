@@ -22,13 +22,13 @@ public class AuthService {
         if (req == null || req.username() == null || req.password() == null) {
             throw ApiException.badRequest("username dan password wajib diisi");
         }
-        User user = Database.users.get(req.username());
-        if (user == null || !user.password.equals(req.password())) {
-            throw ApiException.unauthorized("Username atau password salah");
-        }
+        User user = Database.findUser(req.username())
+                .filter(u -> u.getPassword().equals(req.password()))
+                .orElseThrow(() -> ApiException.unauthorized("Username atau password salah"));
+
         String token = UUID.randomUUID().toString();
         sessions.put(token, user);
-        return new LoginResponse(token, user.username, user.name, user.role);
+        return new LoginResponse(token, user.getUsername(), user.getName(), user.getRole());
     }
 
     public void logout(String authorization) {
@@ -45,8 +45,8 @@ public class AuthService {
 
     public User requireRole(String authorization, Role role) {
         User user = currentUser(authorization);
-        if (user.role != role) {
-            throw ApiException.forbidden("Akses ditolak untuk role " + user.role);
+        if (user.getRole() != role) {
+            throw ApiException.forbidden("Akses ditolak untuk role " + user.getRole());
         }
         return user;
     }

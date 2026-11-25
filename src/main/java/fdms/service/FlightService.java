@@ -6,7 +6,6 @@ import fdms.dto.Dto.FlightDto;
 import fdms.dto.Dto.StatusUpdateRequest;
 import fdms.exception.ApiException;
 import fdms.model.Flight;
-import fdms.model.FlightStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.List;
 public class FlightService {
 
     public List<FlightDto> listFlights() {
-        return Database.flights.values().stream().map(FlightDto::from).toList();
+        return Database.flights().stream().map(FlightDto::from).toList();
     }
 
     public FlightDto getFlight(String code) {
@@ -29,32 +28,24 @@ public class FlightService {
         Flight flight = findFlight(code);
 
         switch (req.status()) {
-            case NORMAL -> {
-                flight.status = FlightStatus.NORMAL;
-                flight.delayMinutes = 0;
-            }
+            case NORMAL -> flight.markNormal();
             case DELAYED -> {
-                if (req.delayMinutes() == null || req.delayMinutes() <= 0) {
-                    throw ApiException.badRequest("delayMinutes wajib diisi dan lebih dari 0");
+                if (req.delayMinutes() == null) {
+                    throw ApiException.badRequest("delayMinutes wajib diisi untuk status DELAYED");
                 }
-                flight.status = FlightStatus.DELAYED;
-                flight.delayMinutes = req.delayMinutes();
+                flight.markDelayed(req.delayMinutes());
             }
-            case CANCELLED -> {
-                flight.status = FlightStatus.CANCELLED;
-                flight.delayMinutes = 0;
-            }
+            case CANCELLED -> flight.markCancelled();
         }
 
-        int affected = (int) Database.tickets.stream().filter(t -> t.flight == flight).count();
-        return new DisruptionResultDto(FlightDto.from(flight), affected);
+        long affected = Database.tickets().stream()
+                .filter(t -> t.getFlight() == flight)
+                .count();
+        return new DisruptionResultDto(FlightDto.from(flight), (int) affected);
     }
 
     private Flight findFlight(String code) {
-        Flight flight = Database.flights.get(code.toUpperCase());
-        if (flight == null) {
-            throw ApiException.notFound("Penerbangan " + code + " tidak ditemukan");
-        }
-        return flight;
+        return Database.findFlight(code)
+                .orElseThrow(() -> ApiException.notFound("Penerbangan " + code + " tidak ditemukan"));
     }
 }

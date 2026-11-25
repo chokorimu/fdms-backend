@@ -31,23 +31,23 @@ public final class Dto {
 
     public record UserDto(String username, String name, Role role) {
         public static UserDto from(User u) {
-            return new UserDto(u.username, u.name, u.role);
+            return new UserDto(u.getUsername(), u.getName(), u.getRole());
         }
     }
 
     public record FlightDto(String code, String route, String departure, int capacity,
                             int seatsTaken, int seatsLeft, FlightStatus status, int delayMinutes) {
         public static FlightDto from(Flight f) {
-            return new FlightDto(f.code, f.route, f.departure, f.capacity,
-                    f.seatsTaken, f.seatsLeft(), f.status, f.delayMinutes);
+            return new FlightDto(f.getCode(), f.getRoute(), f.getDeparture(), f.getCapacity(),
+                    f.getSeatsTaken(), f.getSeatsLeft(), f.getStatus(), f.getDelayMinutes());
         }
     }
 
     public record TicketDto(String id, String passengerUsername, String passengerName,
                             FlightDto flight, Handling handling, boolean escalated) {
         public static TicketDto from(Ticket t) {
-            return new TicketDto(t.id, t.passenger.username, t.passenger.name,
-                    FlightDto.from(t.flight), t.handling, t.escalated);
+            return new TicketDto(t.getId(), t.getPassenger().getUsername(), t.getPassenger().getName(),
+                    FlightDto.from(t.getFlight()), t.getHandling(), t.isEscalated());
         }
     }
 
