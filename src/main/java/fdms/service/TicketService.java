@@ -1,9 +1,10 @@
 package fdms.service;
 
 import fdms.data.Database;
+import fdms.dto.Dto.AlternativeDto;
 import fdms.dto.Dto.CompensationOptionDto;
 import fdms.dto.Dto.CompensationRequest;
-import fdms.dto.Dto.FlightDto;
+import fdms.dto.Dto.RecommendationDto;
 import fdms.dto.Dto.RescheduleRequest;
 import fdms.dto.Dto.TicketDto;
 import fdms.dto.Dto.TicketOptionsDto;
@@ -20,8 +21,11 @@ import java.util.List;
 @Service
 public class TicketService {
 
-    /** Nilai dasar kompensasi dalam Rp. Refund = 100%, voucher = 150% (lihat CompensationType). */
-    public static final long BASE_COMPENSATION = 500_000L;
+    private final RecommendationService recommendations;
+
+    public TicketService(RecommendationService recommendations) {
+        this.recommendations = recommendations;
+    }
 
     public List<TicketDto> myTickets(User user) {
         return Database.tickets().stream()
@@ -38,12 +42,15 @@ public class TicketService {
         Ticket ticket = ownedTicket(user, ticketId);
         Flight flight = ticket.getFlight();
 
-        List<FlightDto> alternatives = flight.isDisrupted()
-                ? findAlternatives(flight).stream().map(FlightDto::from).toList()
-                : List.of();
+        List<AlternativeDto> alternatives = List.of();
+        RecommendationDto recommendation = null;
+        if (flight.isDisrupted()) {
+            alternatives = recommendations.rank(flight, findAlternatives(flight));
+            recommendation = recommendations.recommend(flight, alternatives);
+        }
 
         List<CompensationOptionDto> compensationOptions = Arrays.stream(CompensationType.values())
-                .map(type -> new CompensationOptionDto(type, type.getLabel(), type.amountFor(BASE_COMPENSATION)))
+                .map(type -> new CompensationOptionDto(type, type.getLabel(), type.amountFor(ticket.getPrice())))
                 .toList();
 
         return new TicketOptionsDto(
@@ -51,6 +58,7 @@ public class TicketService {
                 flight.isDisrupted(),
                 flight.isCompensationEligible(),
                 compensationOptions,
+                recommendation,
                 alternatives);
     }
 

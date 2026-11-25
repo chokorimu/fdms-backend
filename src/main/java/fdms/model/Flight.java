@@ -28,6 +28,9 @@ public class Flight {
         if (departure == null || departure.isBlank()) {
             throw new IllegalArgumentException("Jam berangkat wajib diisi");
         }
+        if (!departure.matches("([01]\\d|2[0-3]):[0-5]\\d")) {
+            throw new IllegalArgumentException("Jam berangkat harus berformat HH:MM");
+        }
         if (capacity <= 0) {
             throw new IllegalArgumentException("Kapasitas harus lebih dari 0");
         }

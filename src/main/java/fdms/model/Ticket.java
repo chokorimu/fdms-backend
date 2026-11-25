@@ -8,11 +8,13 @@ public class Ticket {
     private Handling handling = Handling.MENUNGGU_PILIHAN;
     private CompensationType compensationType;
     private boolean escalated = false;
+    private final long price;
 
-    public Ticket(String id, Passenger passenger, Flight flight) {
+    public Ticket(String id, Passenger passenger, Flight flight, long price) {
         this.id = id;
         this.passenger = passenger;
         this.flight = flight;
+        this.price = price;
     }
 
     public String getId() {
@@ -33,6 +35,10 @@ public class Ticket {
 
     public CompensationType getCompensationType() {
         return compensationType;
+    }
+
+    public long getPrice() {
+        return price;
     }
 
     public boolean isEscalated() {

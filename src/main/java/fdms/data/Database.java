@@ -41,8 +41,8 @@ public final class Database {
         addFlight(new Flight("GA109", "CGK-DPS", "18:00", 150, 60));
         addFlight(new Flight("JT200", "CGK-SUB", "09:00", 150, 100));
 
-        TICKETS.add(new Ticket("T001", budi, FLIGHTS.get("GA101")));
-        TICKETS.add(new Ticket("T002", siti, FLIGHTS.get("GA101")));
+        TICKETS.add(new Ticket("T001", budi, FLIGHTS.get("GA101"), 1_200_000L));
+        TICKETS.add(new Ticket("T002", siti, FLIGHTS.get("GA101"), 1_350_000L));
     }
 
     public static synchronized Optional<User> findUser(String username) {

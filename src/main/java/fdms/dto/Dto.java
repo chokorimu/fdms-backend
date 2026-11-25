@@ -45,18 +45,24 @@ public final class Dto {
 
     public record TicketDto(String id, String passengerUsername, String passengerName,
                             FlightDto flight, Handling handling, CompensationType compensationType,
-                            boolean escalated) {
+                            boolean escalated, long price) {
         public static TicketDto from(Ticket t) {
             return new TicketDto(t.getId(), t.getPassenger().getUsername(), t.getPassenger().getName(),
-                    FlightDto.from(t.getFlight()), t.getHandling(), t.getCompensationType(), t.isEscalated());
+                    FlightDto.from(t.getFlight()), t.getHandling(), t.getCompensationType(),
+                    t.isEscalated(), t.getPrice());
         }
     }
 
     public record CompensationOptionDto(CompensationType type, String label, long amount) {}
 
+    public record AlternativeDto(FlightDto flight, int shiftMinutes, boolean withinWindow, String reason) {}
+
+    public record RecommendationDto(String action, String reason) {}
+
     public record TicketOptionsDto(TicketDto ticket, boolean disrupted, boolean compensationEligible,
                                    List<CompensationOptionDto> compensationOptions,
-                                   List<FlightDto> alternatives) {}
+                                   RecommendationDto recommendation,
+                                   List<AlternativeDto> alternatives) {}
 
     public record DisruptionResultDto(FlightDto flight, int affectedPassengers) {}
 }
