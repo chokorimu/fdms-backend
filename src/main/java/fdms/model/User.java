@@ -2,10 +2,6 @@ package fdms.model;
 
 import java.util.Set;
 
-/**
- * Base class untuk semua pengguna sistem.
- * Setiap subclass menentukan role dan kemampuannya sendiri.
- */
 public abstract class User {
 
     private final String username;
