@@ -4,7 +4,7 @@ import fdms.data.Database;
 import fdms.dto.Dto.LoginRequest;
 import fdms.dto.Dto.LoginResponse;
 import fdms.exception.ApiException;
-import fdms.model.Role;
+import fdms.model.Permission;
 import fdms.model.User;
 import org.springframework.stereotype.Service;
 
@@ -43,10 +43,10 @@ public class AuthService {
         return user;
     }
 
-    public User requireRole(String authorization, Role role) {
+    public User requirePermission(String authorization, Permission permission) {
         User user = currentUser(authorization);
-        if (user.getRole() != role) {
-            throw ApiException.forbidden("Akses ditolak untuk role " + user.getRole());
+        if (!user.can(permission)) {
+            throw ApiException.forbidden("Anda tidak memiliki izin untuk aksi ini");
         }
         return user;
     }

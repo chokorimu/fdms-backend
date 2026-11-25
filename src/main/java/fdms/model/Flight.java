@@ -2,28 +2,45 @@ package fdms.model;
 
 public class Flight {
 
-    public static final int MIN_DELAY_FOR_COMPENSATION = 120; // menit
+    public static final int MIN_DELAY_FOR_COMPENSATION = 120;
 
     private final String code;
-    private final String route;
-    private final String departure;
-    private final int capacity;
+    private String route;
+    private String departure;
+    private int capacity;
     private int seatsTaken;
     private FlightStatus status = FlightStatus.NORMAL;
     private int delayMinutes = 0;
 
     public Flight(String code, String route, String departure, int capacity, int seatsTaken) {
+        validate(route, departure, capacity, seatsTaken);
+        this.code = code;
+        this.route = route;
+        this.departure = departure;
+        this.capacity = capacity;
+        this.seatsTaken = seatsTaken;
+    }
+
+    private static void validate(String route, String departure, int capacity, int seatsTaken) {
+        if (route == null || route.isBlank()) {
+            throw new IllegalArgumentException("Rute wajib diisi");
+        }
+        if (departure == null || departure.isBlank()) {
+            throw new IllegalArgumentException("Jam berangkat wajib diisi");
+        }
         if (capacity <= 0) {
             throw new IllegalArgumentException("Kapasitas harus lebih dari 0");
         }
         if (seatsTaken < 0 || seatsTaken > capacity) {
             throw new IllegalArgumentException("Jumlah kursi terisi tidak valid");
         }
-        this.code = code;
+    }
+
+    public void updateDetails(String route, String departure, int capacity) {
+        validate(route, departure, capacity, seatsTaken);
         this.route = route;
         this.departure = departure;
         this.capacity = capacity;
-        this.seatsTaken = seatsTaken;
     }
 
     public String getCode() {

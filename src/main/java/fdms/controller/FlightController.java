@@ -1,6 +1,7 @@
 package fdms.controller;
 
 import fdms.dto.Dto.FlightDto;
+import fdms.model.Permission;
 import fdms.service.AuthService;
 import fdms.service.FlightService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,14 +26,14 @@ public class FlightController {
 
     @GetMapping
     public List<FlightDto> list(@RequestHeader(value = "Authorization", required = false) String authorization) {
-        auth.currentUser(authorization);
+        auth.requirePermission(authorization, Permission.VIEW_FLIGHTS);
         return flights.listFlights();
     }
 
     @GetMapping("/{code}")
     public FlightDto get(@PathVariable String code,
                          @RequestHeader(value = "Authorization", required = false) String authorization) {
-        auth.currentUser(authorization);
+        auth.requirePermission(authorization, Permission.VIEW_FLIGHTS);
         return flights.getFlight(code);
     }
 }

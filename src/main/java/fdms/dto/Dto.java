@@ -1,5 +1,6 @@
 package fdms.dto;
 
+import fdms.model.CompensationType;
 import fdms.model.Flight;
 import fdms.model.FlightStatus;
 import fdms.model.Handling;
@@ -9,24 +10,23 @@ import fdms.model.User;
 
 import java.util.List;
 
-/**
- * Objek request/response untuk API. Tidak menyertakan password.
- */
 public final class Dto {
 
     private Dto() {
     }
 
-    // ===== Request =====
     public record LoginRequest(String username, String password) {}
 
     public record StatusUpdateRequest(FlightStatus status, Integer delayMinutes) {}
 
+    public record CreateFlightRequest(String code, String route, String departure, Integer capacity) {}
+
+    public record UpdateFlightRequest(String route, String departure, Integer capacity) {}
+
     public record RescheduleRequest(String flightCode) {}
 
-    public record CompensationRequest(boolean agree) {}
+    public record CompensationRequest(CompensationType type) {}
 
-    // ===== Response =====
     public record LoginResponse(String token, String username, String name, Role role) {}
 
     public record UserDto(String username, String name, Role role) {
@@ -44,15 +44,19 @@ public final class Dto {
     }
 
     public record TicketDto(String id, String passengerUsername, String passengerName,
-                            FlightDto flight, Handling handling, boolean escalated) {
+                            FlightDto flight, Handling handling, CompensationType compensationType,
+                            boolean escalated) {
         public static TicketDto from(Ticket t) {
             return new TicketDto(t.getId(), t.getPassenger().getUsername(), t.getPassenger().getName(),
-                    FlightDto.from(t.getFlight()), t.getHandling(), t.isEscalated());
+                    FlightDto.from(t.getFlight()), t.getHandling(), t.getCompensationType(), t.isEscalated());
         }
     }
 
+    public record CompensationOptionDto(CompensationType type, String label, long amount) {}
+
     public record TicketOptionsDto(TicketDto ticket, boolean disrupted, boolean compensationEligible,
-                                   long compensationAmount, List<FlightDto> alternatives) {}
+                                   List<CompensationOptionDto> compensationOptions,
+                                   List<FlightDto> alternatives) {}
 
     public record DisruptionResultDto(FlightDto flight, int affectedPassengers) {}
 }

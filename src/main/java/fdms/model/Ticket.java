@@ -6,6 +6,7 @@ public class Ticket {
     private final Passenger passenger;
     private Flight flight;
     private Handling handling = Handling.MENUNGGU_PILIHAN;
+    private CompensationType compensationType;
     private boolean escalated = false;
 
     public Ticket(String id, Passenger passenger, Flight flight) {
@@ -30,6 +31,10 @@ public class Ticket {
         return handling;
     }
 
+    public CompensationType getCompensationType() {
+        return compensationType;
+    }
+
     public boolean isEscalated() {
         return escalated;
     }
@@ -46,17 +51,21 @@ public class Ticket {
             throw new IllegalArgumentException("Rute penerbangan tujuan berbeda");
         }
 
-        target.reserveSeat(); 
+        target.reserveSeat();   // gagal lebih dulu jika kursi penuh, kursi lama belum dilepas
         flight.releaseSeat();
         flight = target;
         handling = Handling.RESCHEDULED;
     }
 
-    public void chooseCompensation() {
+    public void chooseCompensation(CompensationType type) {
         ensureOpen();
+        if (type == null) {
+            throw new IllegalArgumentException("Bentuk kompensasi wajib dipilih");
+        }
         if (!flight.isCompensationEligible()) {
             throw new IllegalArgumentException("Tidak memenuhi syarat kompensasi");
         }
+        compensationType = type;
         handling = Handling.KOMPENSASI;
     }
 

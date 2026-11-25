@@ -1,23 +1,27 @@
 package fdms.service;
 
 import fdms.data.Database;
+import fdms.dto.Dto.CompensationOptionDto;
 import fdms.dto.Dto.CompensationRequest;
 import fdms.dto.Dto.FlightDto;
 import fdms.dto.Dto.RescheduleRequest;
 import fdms.dto.Dto.TicketDto;
 import fdms.dto.Dto.TicketOptionsDto;
 import fdms.exception.ApiException;
+import fdms.model.CompensationType;
 import fdms.model.Flight;
 import fdms.model.Ticket;
 import fdms.model.User;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class TicketService {
 
-    public static final long COMPENSATION_AMOUNT = 500_000L; // Rp (contoh)
+    /** Nilai dasar kompensasi dalam Rp. Refund = 100%, voucher = 150% (lihat CompensationType). */
+    public static final long BASE_COMPENSATION = 500_000L;
 
     public List<TicketDto> myTickets(User user) {
         return Database.tickets().stream()
@@ -38,11 +42,15 @@ public class TicketService {
                 ? findAlternatives(flight).stream().map(FlightDto::from).toList()
                 : List.of();
 
+        List<CompensationOptionDto> compensationOptions = Arrays.stream(CompensationType.values())
+                .map(type -> new CompensationOptionDto(type, type.getLabel(), type.amountFor(BASE_COMPENSATION)))
+                .toList();
+
         return new TicketOptionsDto(
                 TicketDto.from(ticket),
                 flight.isDisrupted(),
                 flight.isCompensationEligible(),
-                COMPENSATION_AMOUNT,
+                compensationOptions,
                 alternatives);
     }
 
@@ -66,9 +74,10 @@ public class TicketService {
 
     public synchronized TicketDto compensation(User user, String ticketId, CompensationRequest req) {
         Ticket ticket = ownedTicket(user, ticketId);
-        if (req != null && req.agree()) {
-            ticket.chooseCompensation();
+        if (req == null || req.type() == null) {
+            throw ApiException.badRequest("type wajib diisi (REFUND atau VOUCHER)");
         }
+        ticket.chooseCompensation(req.type());
         return TicketDto.from(ticket);
     }
 
@@ -77,8 +86,6 @@ public class TicketService {
         ticket.chooseNoAction();
         return TicketDto.from(ticket);
     }
-
-    // ===== Helper =====
 
     private Ticket ownedTicket(User user, String ticketId) {
         return Database.tickets().stream()

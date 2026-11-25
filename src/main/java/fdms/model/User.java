@@ -1,5 +1,11 @@
 package fdms.model;
 
+import java.util.Set;
+
+/**
+ * Base class untuk semua pengguna sistem.
+ * Setiap subclass menentukan role dan kemampuannya sendiri.
+ */
 public abstract class User {
 
     private final String username;
@@ -25,4 +31,10 @@ public abstract class User {
     }
 
     public abstract Role getRole();
+
+    public abstract Set<Permission> getPermissions();
+
+    public boolean can(Permission permission) {
+        return getPermissions().contains(permission);
+    }
 }

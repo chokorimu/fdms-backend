@@ -3,7 +3,6 @@ package fdms.data;
 import fdms.model.Admin;
 import fdms.model.Flight;
 import fdms.model.Passenger;
-
 import fdms.model.Ticket;
 import fdms.model.User;
 
@@ -46,12 +45,6 @@ public final class Database {
         TICKETS.add(new Ticket("T002", siti, FLIGHTS.get("GA101")));
     }
 
-    private static void addFlight(Flight flight) {
-        FLIGHTS.put(flight.getCode(), flight);
-    }
-
-    // ===== Akses data =====
-
     public static synchronized Optional<User> findUser(String username) {
         return Optional.ofNullable(USERS.get(username));
     }
@@ -60,7 +53,14 @@ public final class Database {
         return Optional.ofNullable(FLIGHTS.get(code.toUpperCase()));
     }
 
-    /** Salinan daftar; objek di dalamnya tetap diubah lewat method domain. */
+    public static synchronized void addFlight(Flight flight) {
+        FLIGHTS.put(flight.getCode(), flight);
+    }
+
+    public static synchronized boolean removeFlight(String code) {
+        return FLIGHTS.remove(code.toUpperCase()) != null;
+    }
+
     public static synchronized List<Flight> flights() {
         return List.copyOf(FLIGHTS.values());
     }
